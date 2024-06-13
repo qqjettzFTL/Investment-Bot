@@ -3,7 +3,6 @@
 # torch: pytorch framework for using AI
 # transformers: load up finance deep learning model
 
-import os
 from lumibot.brokers import Alpaca # broker
 from lumibot.backtesting import YahooDataBacktesting # framework for testing
 from lumibot.strategies.strategy import Strategy # trading bot
