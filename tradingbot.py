@@ -8,7 +8,8 @@ from lumibot.brokers import Alpaca # broker
 from lumibot.backtesting import YahooDataBacktesting # framework for testing
 from lumibot.strategies.strategy import Strategy # trading bot
 from lumibot.traders import Trader # deployment capability
-from datetime import datetime 
+from datetime import datetime, timedelta # helps to calculate up time
+# from alpaca_trade_api import REST # used to give news to ML
 
 # Credentials to Alpaca account
 API_KEY = "PK6AZHT8T4HQ44PAVRAE"
@@ -29,6 +30,9 @@ class MLTrader(Strategy):
         self.sleeptime = "24H" # Frequency of trades
         self.last_trade = None # Last trade
         self.cash_at_risk = cash_at_risk # Percent of cash at risk
+        # self.api = REST(base_url=BASE_URL, # Create instance of trade api
+        #                 key_id=API_KEY, 
+        #                 secret_key=API_SECRET)
 
     # Amount of cash that will be invested
     def position_sizing(self):
@@ -38,7 +42,19 @@ class MLTrader(Strategy):
         if last_price != 0:
             quantity = math.floor(cash * self.cash_at_risk / last_price) # Amount of cash at risk
         return cash, last_price, quantity
+    
+    # def get_news(self):
+    #     today, three_days_prior = self.get_dates()
+    #     news = self.api.get_news(symbol=self.symbol,
+    #                             start=three_days_prior, 
+    #                             end=today)
+    #     news = [ev.__dict__["_raw"]["headline"] for ev in news]
+    #     return news
 
+    # def get_dates(self):
+    #     today = self.get_datetime()
+    #     three_days_prior = today - timedelta(days=3)
+    #     return today.strftime('%Y-%m-%d'), three_days_prior.strftime('%Y-%m-%d')
 
     # Runs everytime new data is received (trading logic)
     def on_trading_iteration(self):
@@ -46,6 +62,8 @@ class MLTrader(Strategy):
 
         if cash > last_price: # Check that there is enough cash in account to make purchase
             if self.last_trade == None:
+                # news = self.get_news
+                # print(news)
                 order = self.create_order(
                     self.symbol,
                     quantity,
